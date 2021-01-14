@@ -262,6 +262,8 @@ class ContextMaker(object):
                     mean_std = gsim.get_mean_std1(ctx, self.imts)
                 else:
                     mean_std = gsim.get_mean_std(ctxs, self.imts)
+            if numpy.isnan(mean_std).any():
+                import pdb; pdb.set_trace()
             with self.poe_mon:
                 # builds poes of shape (N, L, G)
                 poes[:, :, g] = gsim.get_poes(

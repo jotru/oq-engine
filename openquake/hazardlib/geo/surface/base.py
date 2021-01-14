@@ -307,8 +307,8 @@ class BaseSurface:
             northern and southern borders of the bounding box respectively.
             Values are floats in decimal degrees.
         """
-        mesh = self.mesh
-        return utils.get_spherical_bounding_box(mesh.lons, mesh.lats)
+        lons, lats, _deps = self.mesh.strip_nan()
+        return utils.get_spherical_bounding_box(lons, lats)
 
     def get_middle_point(self):
         """

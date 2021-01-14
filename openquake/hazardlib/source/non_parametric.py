@@ -194,6 +194,10 @@ class NonParametricSeismicSource(BaseSeismicSource):
             for surf in surfs:
                 lons.extend(surf.mesh.lons.flat)
                 lats.extend(surf.mesh.lats.flat)
+        lons = F32(lons)
+        lats = F32(lats)
+        lons = lons[numpy.isfinite(lons)]  # strip NaNs
+        lats = lats[numpy.isfinite(lats)]  # strip NaNs
         points = numpy.zeros(len(lons), [('lon', F32), ('lat', F32)])
         points['lon'] = numpy.round(lons, 5)
         points['lat'] = numpy.round(lats, 5)

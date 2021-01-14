@@ -479,6 +479,16 @@ class Mesh(object):
         from openquake.hazardlib.geo.polygon import Polygon
         return Polygon._from_2d(polygon2d, proj)
 
+    def strip_nan(self):
+        """
+        Meshes coming from KiteSurfaces can contain NaNs.
+        :returns: flat arrays of lons, lats stripped by NaNs
+        """
+        if self.lons.ndim < 2:  # strip only for RectangularMesh
+            return self.lons, self.lats
+        ok = numpy.isfinite(self.lons)
+        return self.lons[ok], self.lats[ok], self.depths[ok]
+
 
 class RectangularMesh(Mesh):
     """
@@ -802,3 +812,11 @@ class RectangularMesh(Mesh):
         # compute and return weighted mean
         return numpy.sum(widths * mean_cell_lengths) / \
             numpy.sum(mean_cell_lengths)
+
+    @cached_property
+    def xyz(self):
+        """
+        :returns: an array of shape (N, 3) with the cartesian coordinates
+        """
+        lons, lats, deps = self.strip_nan()
+        return geo_utils.spherical_to_cartesian(lons, lats, deps)
