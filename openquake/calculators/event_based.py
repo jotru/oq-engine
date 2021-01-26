@@ -188,7 +188,10 @@ class EventBasedCalculator(base.HazardCalculator):
             rlzs = self.rlzs[df.eid.to_numpy()]
             ws = 1 / self.num_events[rlzs] / self.R
             for col in avg_gmf:
-                avg_gmf[col][sid] += df[col].to_numpy() @ ws
+                if not col.endswith('_var'):
+                    vals = df[col].to_numpy()
+                    avg_gmf[col][sid] += vals @ ws
+                    avg_gmf[col + '_var'][sid] += vals**2 @ ws
         return gmf_df.eid.unique()
 
     def agg_dicts(self, acc, result):
@@ -345,6 +348,8 @@ class EventBasedCalculator(base.HazardCalculator):
                 self.num_events = numpy.bincount(self.rlzs)  # events by rlz
                 avg_gmf = {imt: numpy.zeros(self.N, F32)
                            for imt in oq.all_imts()}
+                for imt in oq.all_imts():
+                    avg_gmf[imt + '_var'] = numpy.zeros(self.N, F32)
                 rel_events = self.save_avg_gmf(avg_gmf)
                 self.datastore.create_dframe('avg_gmf', avg_gmf.items())
             e = len(rel_events)
